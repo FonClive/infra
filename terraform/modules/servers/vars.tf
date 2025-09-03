@@ -8,6 +8,22 @@ variable "environments" {
   description = "This describes the environment namespace"
 }
 
+variable "key_name" {
+  description = "Name of the SSH key pair to use for EC2 instances"
+  type        = string
+}
+
+variable "security_group_ids" {
+  description = "List of SGs to attach to EC2 instances"
+  type        = list(string)
+  default     = []
+}
+
+variable "public_key_path" {
+  description = "Path to an existing SSH public key file"
+  type        = string
+  default     = ""
+}
 
 variable "ec2_parameters" {
   type = object({

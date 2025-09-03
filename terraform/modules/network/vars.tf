@@ -55,3 +55,27 @@ variable "rt_parameters" {
   default = {}
 }
 
+variable "sg_parameters" {
+  description = "Map of security groups to create"
+  type = map(object({
+    vpc_name    = string
+    description = optional(string, "Managed by Terraform")
+    ingress = optional(list(object({
+      description = optional(string, "Ingress rule")
+      from_port   = number
+      to_port     = number
+      protocol    = string
+      cidr_blocks = list(string)
+    })), [])
+
+    egress = optional(list(object({
+      description = optional(string, "Egress rule")
+      from_port   = number
+      to_port     = number
+      protocol    = string
+      cidr_blocks = list(string)
+    })), [])
+  }))
+  default = {}
+}
+

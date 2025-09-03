@@ -23,3 +23,8 @@ output "private_subnet_ids" {
     if try(s.tags["tier"], "") == "backend"
   ]
 }
+
+output "sg_ids" {
+  description = "Map of created security groups"
+  value       = { for k, sg in aws_security_group.this : k => sg.id }
+}
