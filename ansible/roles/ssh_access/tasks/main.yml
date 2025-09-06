@@ -1,0 +1,13 @@
+# - name: Ensure admin users exist
+#   user:
+#     name: "{{ item.name }}"
+#     state: present 
+#     groups: sudo 
+#   loop: "{{ admins }}"
+
+# - name: Ensure authorized keys are installed
+#   authorized_keys:
+#     user: "{{ item.name }}"
+#     key: "{{ item.key }}"
+#     state: present
+#   loop: "{{ admin }}"

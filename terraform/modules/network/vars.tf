@@ -44,7 +44,7 @@ variable "igw_parameters" {
 variable "rt_parameters" {
   description = "Route table parameters"
   type = map(object({
-    subnet_name = string 
+    subnet_names = list(string) 
     tags = optional(map(string), {})
     routes = optional(list(object({
       destination_cidr_block = string

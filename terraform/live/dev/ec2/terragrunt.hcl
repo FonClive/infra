@@ -16,11 +16,12 @@ inputs = {
   public_key_path = "~/.ssh/dev-key.pub"
   ec2_parameters = {
     instance_count = 3
-    instance_type  = "t3.micro"
+    instance_type  = "t2.nano"
     subnet_ids     = dependency.vpc.outputs.public_subnet_ids
     
     tags = {
-      role = "frontend"
+      Role = "frontend"
+      Environments = "dev"
     }
   }
   

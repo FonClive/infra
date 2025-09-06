@@ -89,7 +89,7 @@ inputs = {
   # -----------------------
   rt_parameters = {
     public-rt = {
-      subnet_name = "public-subnet-1" # associate with at least one public subnet
+      subnet_names = ["public-subnet-1", "public-subnet-2"]# associate with at least one public subnet
       routes = [
         {
           destination_cidr_block = "0.0.0.0/0" # default route to Internet
@@ -101,6 +101,7 @@ inputs = {
         tier = "public"
       }
     }
+
   }
 
   # Security Groups

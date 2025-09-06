@@ -1,0 +1,32 @@
+plugin: aws_ec2
+
+aws_profile: default
+
+#profile: "{{ lookup('env', 'AWS_PROFILE') | default('aws_profile', true) }}"
+
+regions:
+  - us-east-1   # replace with your region
+hostnames:
+  - ip-address
+  - public-ip-address
+  # - tag:Name=Tag1,Name=Tag2  # Return specific hosts only
+  # - tag:CustomDNSName
+  # - dns-name
+  # - name: 'tag:Name=Tag1,Name=Tag2'
+  # - name: 'public-ip-address'
+  #   separator: '_'
+  #   prefix: 'tag:Name'
+  
+compose:
+  ansible_host: public_ip_address
+  
+filters:
+  tag:Role:
+    - frontend
+  instance-state-name: running  # only running instances
+
+keyed_groups:
+  - key: tags.Role
+    prefix: "pamfes"             # group will be named `frontend`
+  - key: tags.Environment
+    prefix: "pamfes"             # optional, groups by environment like `dev` or `prod`

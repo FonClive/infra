@@ -1,0 +1,21 @@
+- hosts: frontend
+  become: true
+  roles:
+    - nginx
+    #- prometheus
+
+# - hosts: monitors
+#   become: true
+#   roles:
+#     - prometheus
+
+- hosts: all
+  become: true
+  roles:
+    - puppet
+
+- name: Manage SSH access 
+  hosts: all 
+  become: true 
+  roles: 
+   - ssh_access

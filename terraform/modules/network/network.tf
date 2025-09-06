@@ -60,7 +60,7 @@ resource "aws_internet_gateway" "this" {
 resource "aws_route_table" "this" {
   for_each = var.rt_parameters
 
-  vpc_id = aws_vpc.this[var.subnet_parameters[each.value.subnet_name].vpc_name].id
+  vpc_id = aws_vpc.this[var.subnet_parameters[each.value.subnet_names[0]].vpc_name].id
 
   tags = merge(
     {
@@ -83,11 +83,19 @@ resource "aws_route" "this" {
   gateway_id = each.value.routes[0].use_igw ? aws_internet_gateway.this[each.value.routes[0].gateway_id].id : each.value.routes[0].gateway_id
 }
 
+
 resource "aws_route_table_association" "this" {
-  for_each = var.rt_parameters
+  for_each = merge([
+    for rt_key, rt in var.rt_parameters : {
+      for subnet_name in rt.subnet_names : "${rt_key}-${subnet_name}" => {
+        rt_key      = rt_key
+        subnet_name = subnet_name
+      }
+    }
+  ]...)
 
   subnet_id      = aws_subnet.this[each.value.subnet_name].id
-  route_table_id = aws_route_table.this[each.key].id
+  route_table_id = aws_route_table.this[each.value.rt_key].id
 }
 
 resource "aws_security_group" "this" {
