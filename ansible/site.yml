@@ -1,4 +1,4 @@
-- hosts: frontend
+- hosts: pamfes_frontend
   become: true
   roles:
     - nginx
@@ -14,8 +14,8 @@
   roles:
     - puppet
 
-- name: Manage SSH access 
-  hosts: all 
-  become: true 
-  roles: 
+- name: Manage SSH access
+  hosts: all
+  become: true
+  roles:
    - ssh_access
