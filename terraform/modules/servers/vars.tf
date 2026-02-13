@@ -28,6 +28,7 @@ variable "public_key_path" {
 variable "ec2_parameters" {
   type = object({
     instance_count = number
+    ami_id       = string
     instance_type  = string
     subnet_ids     = list(string)
     tags           = optional(map(string), {})

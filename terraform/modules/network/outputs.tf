@@ -1,5 +1,5 @@
 output "vpc_id" {
-  value = aws_vpc.this["main-vpc"].id
+  value = aws_vpc.this[each.key].id
 }
 
 # For all subnets

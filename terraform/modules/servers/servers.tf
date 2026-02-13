@@ -10,7 +10,7 @@ resource "aws_key_pair" "this" {
 resource "aws_instance" "this" {
   count = var.ec2_parameters.instance_count
 
-  ami           = "ami-0360c520857e3138f"
+  ami          = var.ec2_parameters. ami_id
   instance_type = var.ec2_parameters.instance_type
 
   # distribute evenly across subnets

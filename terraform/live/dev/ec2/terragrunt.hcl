@@ -16,6 +16,7 @@ inputs = {
   public_key_path = "~/.ssh/dev-key.pub"
   ec2_parameters = {
     instance_count = 3
+    ami_id         = "ami-0360c520857e3138f"
     instance_type  = "t2.nano"
     subnet_ids     = dependency.vpc.outputs.public_subnet_ids
     
