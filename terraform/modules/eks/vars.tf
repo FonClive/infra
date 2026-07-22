@@ -9,6 +9,10 @@ variable "cluster_version" {
   
 }
 
+variable "cluster_role" {
+  type = string
+}
+
 variable "subnet_ids" {
   type = list(string)
   default = []

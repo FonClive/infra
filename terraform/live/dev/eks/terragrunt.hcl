@@ -10,9 +10,10 @@ dependency "vpc" {
   config_path = "../vpc"
 }
 
-inputs {
+inputs = {
   cluster_name = "pamfes-dev-cluster"
   cluster_version = "1.33"
   node_role_name = "pamfes-dev-eks-node-role"
+  cluster_role = "pamfes-dev-eks-cluster-role"
   subnet_ids = dependency.vpc.outputs.private_subnet_ids
 }
