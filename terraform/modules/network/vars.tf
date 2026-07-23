@@ -48,9 +48,20 @@ variable "rt_parameters" {
     tags = optional(map(string), {})
     routes = optional(list(object({
       destination_cidr_block = string
-      use_igw = optional(bool, true)
+      use_igw = optional(bool, false)
+      use_nat_gw = optional(bool, false)
       gateway_id =string
     })), [])
+  }))
+  default = {}
+}
+
+variable "nat_gateway_parameters" {
+  description = "NAT Gateway parameters"
+  type = map(object({
+    vpc_name = string
+    subnet_name = string
+    tags = optional(map(string), {})
   }))
   default = {}
 }

@@ -85,14 +85,27 @@ inputs = {
   }
 
   # -----------------------
+  # NAT Gateway
+  # -----------------------
+  nat_gateway_parameters = {
+    main-nat = {
+      vpc_name    = "main-vpc"
+      subnet_name = "public-subnet-1"
+      tags = {
+        Name = "main-nat"
+      }
+    }
+  }
+
+  # -----------------------
   # Route Tables + Routes
   # -----------------------
   rt_parameters = {
     public-rt = {
-      subnet_names = ["public-subnet-1", "public-subnet-2"]# associate with at least one public subnet
+      subnet_names = ["public-subnet-1", "public-subnet-2"]
       routes = [
         {
-          destination_cidr_block = "0.0.0.0/0" # default route to Internet
+          destination_cidr_block = "0.0.0.0/0"
           use_igw                = true
           gateway_id             = "main-igw"
         }
@@ -102,6 +115,19 @@ inputs = {
       }
     }
 
+    private-rt = {
+      subnet_names = ["private-subnet-1", "private-subnet-2"]
+      routes = [
+        {
+          destination_cidr_block = "0.0.0.0/0"
+          use_nat_gw             = true
+          gateway_id             = "main-nat"
+        }
+      ]
+      tags = {
+        tier = "private"
+      }
+    }
   }
 
   # Security Groups

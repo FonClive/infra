@@ -55,6 +55,40 @@ resource "aws_internet_gateway" "this" {
 }
 
 #################################
+# NAT Gateway
+#################################
+resource "aws_eip" "this" {
+  for_each = var.nat_gateway_parameters
+
+  domain = "vpc"
+
+  tags = merge(
+    {
+      Name        = each.key
+      Environment = var.environments
+    },
+    lookup(each.value, "tags", {})
+  )
+}
+
+resource "aws_nat_gateway" "this" {
+  for_each = var.nat_gateway_parameters
+
+  allocation_id = aws_eip.this[each.key].id
+  subnet_id     = aws_subnet.this[each.value.subnet_name].id
+
+  tags = merge(
+    {
+      Name        = each.key
+      Environment = var.environments
+    },
+    lookup(each.value, "tags", {})
+  )
+
+  depends_on = [aws_internet_gateway.this]
+}
+
+#################################
 # Route Tables + Routes
 #################################
 resource "aws_route_table" "this" {
@@ -74,13 +108,14 @@ resource "aws_route_table" "this" {
 resource "aws_route" "this" {
   for_each = {
     for rt_key, rt in var.rt_parameters : rt_key => rt
-    if length(rt.routes) > 0
+    if length(rt.routes) > 0 && (rt.routes[0].use_igw || rt.routes[0].use_nat_gw)
   }
 
   route_table_id         = aws_route_table.this[each.key].id
   destination_cidr_block = each.value.routes[0].destination_cidr_block
 
-  gateway_id = each.value.routes[0].use_igw ? aws_internet_gateway.this[each.value.routes[0].gateway_id].id : each.value.routes[0].gateway_id
+  gateway_id     = each.value.routes[0].use_igw ? aws_internet_gateway.this[each.value.routes[0].gateway_id].id : null
+  nat_gateway_id = each.value.routes[0].use_nat_gw ? aws_nat_gateway.this[each.value.routes[0].gateway_id].id : null
 }
 
 
