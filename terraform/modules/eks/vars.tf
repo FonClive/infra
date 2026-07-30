@@ -27,3 +27,9 @@ variable "cluster_role_name" {
   type = string
   default = ""
 }
+
+variable "bootstrap_user_arns" {
+  description = "List of IAM user ARNs to add to aws-auth as cluster admin bootstrappers"
+  type        = list(string)
+  default     = []
+}

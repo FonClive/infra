@@ -12,6 +12,7 @@ resource "aws_eks_addon" "vpc_cni" {
 resource "aws_eks_addon" "core_dns" {
   cluster_name             = aws_eks_cluster.example.name
   addon_name               = "coredns"
+  addon_version            = "v1.13.2-eksbuild.11"
   service_account_role_arn = aws_iam_role.coredns.arn
 
   resolve_conflicts_on_create = "OVERWRITE"
