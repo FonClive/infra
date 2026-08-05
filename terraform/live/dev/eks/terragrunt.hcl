@@ -14,7 +14,7 @@ inputs = {
   cluster_name = "pamfes-dev-cluster"
   cluster_version = "1.34"
   node_role_name = "pamfes-dev-eks-node-role"
-  cluster_role = "pamfes-dev-eks-cluster-role"
+  cluster_role_name = "pamfes-dev-eks-cluster-role"
   subnet_ids = dependency.vpc.outputs.private_subnet_ids
   bootstrap_user_arns = ["arn:aws:iam::476415713645:user/Clive-admin"]
 }

@@ -26,7 +26,7 @@ resource "aws_iam_role_policy_attachment" "node_AmazonEC2ContainerRegistryPullOn
 
 
 resource "aws_iam_role" "cluster" {
-  name = var.cluster_role
+  name = var.cluster_role_name
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
