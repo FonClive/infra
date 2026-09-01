@@ -1,0 +1,21 @@
+{
+  "name": "portfolio-landing-page",
+  "version": "1.0.0",
+  "description": "Professional portfolio landing page for DevOps & Cloud Engineer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest --coverage",
+    "sonar": "sonar-scanner"
+  },
+  "keywords": ["portfolio", "devops", "cloud-engineer"],
+  "author": "Fon Clive Fon",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  }
+}
