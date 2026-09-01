@@ -17,17 +17,9 @@ provider "kubernetes" {
     command     = "aws"
   }
 }
-# Helm Orchestration Connection
+
+# Helm provider will use kubeconfig from environment or the kubernetes provider context
 provider "helm" {
-  kubernetes {
-    host                   = var.kubernetes_cluster_endpoint
-    cluster_ca_certificate = base64decode(var.kubernetes_cluster_ca)
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["eks", "get-token", "--cluster-name", var.kubernetes_cluster_name]
-      command     = "aws"
-    }
-  }
 }
 
 variable "kubernetes_cluster_endpoint" { type = string }
@@ -63,4 +55,3 @@ generate "provider" {
   if_exists = "overwrite_terragrunt"
   contents  = local.is_kubernetes_module ? local.kubernetes_provider_config : ""
 }
-

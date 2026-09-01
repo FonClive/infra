@@ -3,7 +3,7 @@ include "root" {
 }
 
 terraform {
-  source = "../../../../modules/k8s-initial-bootstrap"
+  source = "../../../../modules/eks-initial-bootstrap"
 }
 
 # Pull live configurations from the parent EKS folder

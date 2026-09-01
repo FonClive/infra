@@ -19,55 +19,53 @@ locals {
   ]
 }
 
-resource "kubernetes_config_map" "aws_auth" {
+resource "kubernetes_config_map_v1" "aws_auth" {
   metadata {
     name      = "aws-auth"
-    namespace = "kubesystem"
+    namespace = "kube-system"
   }
 
   data = {
     mapRoles = yamlencode(local.aws_auth_map_roles)
     mapUsers = yamlencode(local.aws_auth_map_users)
   }
+
+  lifecycle {
+    ignore_changes = [metadata[0].annotations, metadata[0].labels]
+  }
 }
 
 # Create namespaces
-resource "kubernetes_namespace" "argocd" {
+resource "kubernetes_namespace_v1" "argocd" {
   metadata {
     name = "argocd"
     labels = {
-      name = "argocd"
+      name       = "argocd"
       managed-by = "terraform"
     }
   }
 }
 
 # Additional namespaces for future platform tools
-resource "kubernetes_namespace" "monitoring" {
+resource "kubernetes_namespace_v1" "monitoring" {
   metadata {
     name = "monitoring"
   }
 }
 
+# # Deploy ArgoCD
+# resource "helm_release" "argocd" {
+#   name             = "argocd"
+#   repository       = "https://argoproj.github.io/argo-helm"
+#   chart            = "argo-cd"
+#   version          = "7.3.0"
+#   namespace        = kubernetes_namespace_v1.argocd.metadata[0].name
+#   create_namespace = false
 
-# 2. Deploy your Baseline Controller (Example: ArgoCD or a basic Helm Application)
-resource "helm_release" "argocd" {
-  name             = "argocd"
-  repository       = "https://argoproj.github.io/argo-helm"
-  chart            = "argo-cd"
-  version          = "7.3.0"
-  namespace        = kubernetes_namespace.argocd.metadata[0].name
-  create_namespace = false  # We already created it
-
-  set {
-    name  = "server.service.type"
-    value = "LoadBalancer"  # Changed from ClusterIP for easier access
-  }
-
-  # Optional: Configure initial admin password
-  # set {
-  #   name  = "configs.secret.argocdServerAdminPassword"
-  #   value = bcrypt(var.argocd_admin_password)
-  # }
-}
-
+#   set = [
+#     {
+#     name  = "server.service.type"
+#     value = "LoadBalancer"
+#   }
+#   ]
+# }
