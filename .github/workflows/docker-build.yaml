@@ -7,7 +7,7 @@ on:
       - infra-setup
     paths:
       - 'app/**'
-      - '.github/workflows/docker-build-deploy.yaml'
+      - '.github/workflows/docker-build.yaml'
   pull_request:
     branches:
       - main
