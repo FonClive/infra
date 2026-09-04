@@ -18,7 +18,7 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: portfolio-landing-page
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
 
 jobs:
   test-and-scan:
