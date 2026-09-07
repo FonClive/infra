@@ -1,18 +1,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
-metadata: 
+metadata:
   name: root-application
   namespace: argocd
-spec: 
+spec:
   project: default
   source:
-    repoURL: https://github.com
-    targetRevision: Head
-    path: argocd-root/templates
+    repoURL: https://github.com/your-username/e-2-e-infrastructure  # Fix URL
+    targetRevision: HEAD  # Fix capitalization
+    path: infra/k8s/argocd/templates  # Fix path
   destination:
-    server: https://default.svc
+    server: https://kubernetes.default.svc  # Fix URL
     namespace: argocd
   syncPolicy:
     automated:
       prune: true
-      selHeal: true
+      selfHeal: true  # Fix typo: selHeal → selfHeal
