@@ -8,9 +8,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-username/e-2-e-infrastructure  # Replace
-    targetRevision: HEAD
-    path: infra/k8s/portfolio
+    repoURL: https://github.com/FonClive/e-2-e-infrastructure
+    targetRevision: infra-setup
+    path: infra/k8s/argocd/portforlio-app
   destination:
     server: https://kubernetes.default.svc
     namespace: portfolio
@@ -20,8 +20,3 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
-  # Optional: Image updater annotations for auto-update on new tags
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: portfolio=476415713645.dkr.ecr.us-east-1.amazonaws.com/portfolio-landing-page
-    argocd-image-updater.argoproj.io/portfolio.update-strategy: latest
-    argocd-image-updater.argoproj.io/portfolio.pull-secret: pullsecret:argocd/ecr-creds

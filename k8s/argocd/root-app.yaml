@@ -6,13 +6,13 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-username/e-2-e-infrastructure  # Fix URL
-    targetRevision: HEAD  # Fix capitalization
-    path: infra/k8s/argocd/templates  # Fix path
+    repoURL: https://github.com/FonClive/e-2-e-infrastructure  # Your repo
+    targetRevision: infra-setup  # Your branch
+    path: infra/k8s/argocd/templates
   destination:
-    server: https://kubernetes.default.svc  # Fix URL
+    server: https://kubernetes.default.svc
     namespace: argocd
   syncPolicy:
     automated:
       prune: true
-      selfHeal: true  # Fix typo: selHeal → selfHeal
+      selfHeal: true
