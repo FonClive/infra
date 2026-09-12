@@ -8,7 +8,7 @@ resources:
 - deployment.yaml
 - service.yaml
 - serviceaccount.yaml
-# - ingress.yaml  # Uncomment if using Ingress
+- ingress.yaml  # Uncommented
 
 images:
 - name: 476415713645.dkr.ecr.us-east-1.amazonaws.com/portfolio-landing-page

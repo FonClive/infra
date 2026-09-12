@@ -17,9 +17,9 @@ spec:
     spec:
       containers:
       - name: portfolio
-        image: 476415713645.dkr.ecr.us-east-1.amazonaws.com/portfolio-landing-page:latest
+        image: nginx:alpine
         ports:
-        - containerPort: 3000
+        - containerPort: 80
           name: http
         env:
         - name: NODE_ENV
