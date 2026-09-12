@@ -9,6 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/FonClive/infra
+    targetRevision: infra-setup
     path: infra/k8s/argocd/portforlio-app
   destination:
     server: https://kubernetes.default.svc
