@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/FonClive/infra # Your repo
-    targetRevision: infra-setup  # Your branch
-    path: infra/k8s/argocd/templates
+    repoURL: https://github.com/FonClive/infra
+    targetRevision: infra-setup
+    path: k8s/argocd/templates
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
