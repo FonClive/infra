@@ -8,8 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/FonClive/e-2-e-infrastructure
-    targetRevision: infra-setup
+    repoURL: https://github.com/FonClive/infra
     path: infra/k8s/argocd/portforlio-app
   destination:
     server: https://kubernetes.default.svc

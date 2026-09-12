@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/FonClive/e-2-e-infrastructure  # Your repo
+    repoURL: https://github.com/FonClive/infra # Your repo
     targetRevision: infra-setup  # Your branch
     path: infra/k8s/argocd/templates
   destination:
