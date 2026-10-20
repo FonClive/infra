@@ -1,5 +1,6 @@
 output "vpc_id" {
-  value = aws_vpc.this[each.key].id
+  description = "Map of VPC IDs"
+  value       = { for k, v in aws_vpc.this : k => v.id }
 }
 
 # For all subnets

@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fluent-bit
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: fluent-bit
+    repoURL: https://github.io
+    targetRevision: 0.48.x
+    helm:
+      values: |
+        config:
+          outputs: |
+            [OUTPUT]
+                Name          loki
+                Match         *
+                Host          loki.telemetry.svc
+                Port          3100
+                Labels        job=fluent-bit
+                Auto_Kubernetes_Labels on
+  destination:
+    server: https://default.svc
+    namespace: telemetry
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

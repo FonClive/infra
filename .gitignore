@@ -1,3 +1,5 @@
 .terragrunt*
 install-opentofu.sh
 .terraform*
+node_modules
+coverage

@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: portfolio-app
+  namespace: argocd
+  labels:
+    app: portfolio
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/FonClive/infra
+    targetRevision: infra-setup
+    path: k8s/argocd/portforlio-app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: portfolio
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

@@ -26,7 +26,7 @@ resource "aws_iam_role_policy_attachment" "node_AmazonEC2ContainerRegistryPullOn
 
 
 resource "aws_iam_role" "cluster" {
-  name = var.cluster_role
+  name = var.cluster_role_name
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -151,4 +151,26 @@ data "aws_iam_policy_document" "kube_proxy_assume_role_policy" {
 resource "aws_iam_role" "kube_proxy" {
   name               = "${var.cluster_name}-kube-proxy-role"
   assume_role_policy = data.aws_iam_policy_document.kube_proxy_assume_role_policy.json
+}
+
+# Grant cluster access to bootstrap users via EKS Access Entry API
+# This is required BEFORE aws-auth ConfigMap can be created
+resource "aws_eks_access_entry" "bootstrap_users" {
+  for_each = toset(var.bootstrap_user_arns)
+
+  cluster_name  = aws_eks_cluster.example.name
+  principal_arn = each.value
+  type          = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "bootstrap_users_admin" {
+  for_each = aws_eks_access_entry.bootstrap_users
+
+  cluster_name  = aws_eks_cluster.example.name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn = each.value.principal_arn
+
+  access_scope {
+    type = "cluster"
+  }
 }

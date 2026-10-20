@@ -1,0 +1,211 @@
+---
+#################################
+# Server Provisioning Playbook
+#################################
+# This playbook provisions all EC2 instances with necessary software and configurations
+# It runs all roles in the correct order with proper tags for selective execution
+
+- name: Base System Configuration
+  hosts: all
+  become: true
+  tags:
+    - base
+    - always
+  
+  tasks:
+    - name: Update apt cache (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+    
+    - name: Update yum cache (Amazon Linux/RHEL)
+      yum:
+        update_cache: yes
+      when: ansible_os_family == "RedHat"
+    
+    - name: Install common packages
+      package:
+        name:
+          - curl
+          - wget
+          - git
+          - vim
+          - htop
+          - python3
+          - python3-pip
+        state: present
+    
+    - name: Set timezone
+      timezone:
+        name: UTC
+    
+    - name: Ensure hostname is set
+      hostname:
+        name: "{{ inventory_hostname_short }}"
+
+#################################
+# SSH Access Management
+#################################
+- name: Configure SSH Access
+  hosts: all
+  become: true
+  tags:
+    - ssh
+    - security
+  
+  roles:
+    - ssh_access
+
+#################################
+# Puppet Configuration
+#################################
+- name: Install and Configure Puppet
+  hosts: all
+  become: true
+  tags:
+    - puppet
+    - config-management
+  
+  roles:
+    - puppet
+
+#################################
+# Web Servers (Nginx + Portfolio)
+#################################
+- name: Configure Web Servers
+  hosts: role_frontend
+  become: true
+  tags:
+    - web
+    - frontend
+    - nginx
+  
+  roles:
+    - nginx
+  
+  post_tasks:
+    - name: Verify Nginx is running
+      systemd:
+        name: nginx
+        state: started
+      register: nginx_status
+    
+    - name: Display Nginx status
+      debug:
+        msg: "Nginx is {{ nginx_status.status.ActiveState }}"
+
+- name: Deploy Portfolio Application
+  hosts: role_frontend
+  become: true
+  tags:
+    - portfolio
+    - application
+  
+  roles:
+    - portfolio-app
+
+#################################
+# Monitoring (Prometheus)
+#################################
+- name: Install Prometheus Monitoring
+  hosts: role_monitor
+  become: true
+  tags:
+    - monitoring
+    - prometheus
+  
+  roles:
+    - prometheuse
+  
+  post_tasks:
+    - name: Verify Prometheus is accessible
+      uri:
+        url: "http://localhost:9090/-/healthy"
+        status_code: 200
+      register: prometheus_health
+      ignore_errors: yes
+    
+    - name: Display Prometheus health status
+      debug:
+        msg: "Prometheus health check: {{ 'OK' if prometheus_health.status == 200 else 'FAILED' }}"
+
+#################################
+# Code Quality (SonarQube)
+#################################
+- name: Install SonarQube
+  hosts: role_sonarqube
+  become: true
+  tags:
+    - sonarqube
+    - quality
+    - code-analysis
+  
+  roles:
+    - sonarqube
+  
+  post_tasks:
+    - name: Verify SonarQube is accessible
+      uri:
+        url: "http://localhost:9000/api/system/status"
+        status_code: 200
+      register: sonarqube_health
+      retries: 10
+      delay: 10
+      ignore_errors: yes
+    
+    - name: Display SonarQube status
+      debug:
+        msg: "SonarQube status: {{ 'UP' if sonarqube_health.status == 200 else 'DOWN' }}"
+
+#################################
+# Post-Provisioning Verification
+#################################
+- name: Post-Provisioning Health Checks
+  hosts: all
+  become: true
+  tags:
+    - verify
+    - health-check
+  
+  tasks:
+    - name: Check disk usage
+      shell: df -h /
+      register: disk_usage
+      changed_when: false
+    
+    - name: Display disk usage
+      debug:
+        var: disk_usage.stdout_lines
+    
+    - name: Check memory usage
+      shell: free -h
+      register: memory_usage
+      changed_when: false
+    
+    - name: Display memory usage
+      debug:
+        var: memory_usage.stdout_lines
+    
+    - name: Check running services
+      shell: systemctl list-units --type=service --state=running --no-pager | grep -E '(nginx|sonarqube|puppet|prometheus)'
+      register: running_services
+      changed_when: false
+      failed_when: false
+    
+    - name: Display running services
+      debug:
+        var: running_services.stdout_lines
+    
+    - name: Generate provisioning summary
+      debug:
+        msg:
+          - "=========================================="
+          - "Server Provisioning Complete"
+          - "=========================================="
+          - "Hostname: {{ inventory_hostname }}"
+          - "IP Address: {{ ansible_default_ipv4.address }}"
+          - "OS: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "Kernel: {{ ansible_kernel }}"
+          - "Uptime: {{ ansible_uptime_seconds | int // 3600 }} hours"
+          - "=========================================="
