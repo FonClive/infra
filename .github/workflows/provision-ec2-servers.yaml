@@ -28,8 +28,8 @@ on:
     branches:
       - main
     paths:
-      - 'infra/ansible/roles/**'
-      - 'infra/ansible/provision-servers.yml'
+      - 'ansible/roles/**'
+      - 'ansible/provision-servers.yml'
       - '.github/workflows/provision-ec2-servers.yaml'
 
 env:
@@ -55,17 +55,17 @@ jobs:
           pip install ansible ansible-lint boto3 botocore
       
       - name: Validate Ansible syntax
-        working-directory: infra/ansible
+        working-directory: ansible
         run: |
           ansible-playbook provision-servers.yml --syntax-check
       
       - name: Lint Ansible playbook
-        working-directory: infra/ansible
+        working-directory: ansible
         run: |
           ansible-lint provision-servers.yml || true
       
       - name: Validate inventory
-        working-directory: infra/ansible
+        working-directory: ansible
         run: |
           ansible-inventory -i inventory/aws_ec2.yml --list
 
@@ -159,19 +159,19 @@ jobs:
           echo "✓ All instances are ready for provisioning"
       
       - name: Test Ansible inventory
-        working-directory: infra/ansible
+        working-directory: ansible
         run: |
           echo "Testing Ansible inventory..."
           ansible-inventory -i inventory/aws_ec2.yml --graph
       
       - name: Test Ansible connectivity
-        working-directory: infra/ansible
+        working-directory: ansible
         run: |
           echo "Testing Ansible connectivity via SSM..."
           ansible all -i inventory/aws_ec2.yml -m ping -v || true
       
       - name: Run Ansible provisioning
-        working-directory: infra/ansible
+        working-directory: ansible
         run: |
           echo "Starting Ansible provisioning..."
           
@@ -201,7 +201,7 @@ jobs:
       
       - name: Verify services
         if: github.event.inputs.dry_run != 'true'
-        working-directory: infra/ansible
+        working-directory: ansible
         run: |
           echo "Verifying deployed services..."
           
@@ -276,7 +276,7 @@ jobs:
         with:
           name: ansible-logs
           path: |
-            infra/ansible/*.log
+            ansible/*.log
           retention-days: 7
 
   notify:
