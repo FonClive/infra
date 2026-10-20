@@ -12,8 +12,8 @@ dependency "vpc" {
 
 inputs = {
   environments = "dev"
-  key_name        = "dev-key"
-  public_key_path = "~/.ssh/dev-key.pub"
+  key_name     = "dev-key"  # Used as prefix for IAM resources
+  
   ec2_parameters = {
     instance_count = 3
     ami_id         = "ami-0360c520857e3138f"
@@ -21,7 +21,7 @@ inputs = {
     subnet_ids     = dependency.vpc.outputs.public_subnet_ids
     
     tags = {
-      Role = "frontend"
+      Role         = "frontend"
       Environments = "dev"
     }
   }

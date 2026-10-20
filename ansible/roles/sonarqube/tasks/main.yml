@@ -1,0 +1,170 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install required packages
+  apt:
+    name:
+      - openjdk-17-jdk
+      - unzip
+      - wget
+      - postgresql
+      - postgresql-contrib
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install required packages (Amazon Linux/RHEL)
+  yum:
+    name:
+      - java-17-openjdk
+      - unzip
+      - wget
+      - postgresql
+      - postgresql-server
+      - postgresql-contrib
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Set system limits for SonarQube
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  loop:
+    - { name: 'vm.max_map_count', value: '{{ sonarqube_max_map_count }}' }
+    - { name: 'fs.file-max', value: '{{ sonarqube_max_file_descriptors }}' }
+
+- name: Create SonarQube group
+  group:
+    name: "{{ sonarqube_group }}"
+    state: present
+
+- name: Create SonarQube user
+  user:
+    name: "{{ sonarqube_user }}"
+    group: "{{ sonarqube_group }}"
+    shell: /bin/bash
+    home: "{{ sonarqube_install_dir }}"
+    createhome: no
+    system: yes
+
+- name: Create SonarQube directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ sonarqube_user }}"
+    group: "{{ sonarqube_group }}"
+    mode: '0755'
+  loop:
+    - "{{ sonarqube_install_dir }}"
+    - "{{ sonarqube_data_dir }}"
+    - "{{ sonarqube_logs_dir }}"
+    - "{{ sonarqube_temp_dir }}"
+
+- name: Check if SonarQube is already installed
+  stat:
+    path: "{{ sonarqube_install_dir }}/bin"
+  register: sonarqube_installed
+
+- name: Download SonarQube
+  get_url:
+    url: "{{ sonarqube_download_url }}"
+    dest: "/tmp/sonarqube.zip"
+    mode: '0644'
+  when: not sonarqube_installed.stat.exists
+
+- name: Extract SonarQube
+  unarchive:
+    src: "/tmp/sonarqube.zip"
+    dest: "/tmp"
+    remote_src: yes
+  when: not sonarqube_installed.stat.exists
+
+- name: Move SonarQube files to install directory
+  shell: |
+    mv /tmp/sonarqube-{{ sonarqube_version }}/* {{ sonarqube_install_dir }}/
+  args:
+    creates: "{{ sonarqube_install_dir }}/bin"
+  when: not sonarqube_installed.stat.exists
+
+- name: Clean up downloaded archive
+  file:
+    path: "/tmp/sonarqube.zip"
+    state: absent
+
+- name: Configure SonarQube properties
+  template:
+    src: sonar.properties.j2
+    dest: "{{ sonarqube_install_dir }}/conf/sonar.properties"
+    owner: "{{ sonarqube_user }}"
+    group: "{{ sonarqube_group }}"
+    mode: '0644'
+  notify: restart sonarqube
+
+- name: Set SonarQube file ownership
+  file:
+    path: "{{ sonarqube_install_dir }}"
+    owner: "{{ sonarqube_user }}"
+    group: "{{ sonarqube_group }}"
+    recurse: yes
+
+- name: Configure PostgreSQL database (if not using embedded)
+  block:
+    - name: Start PostgreSQL service
+      systemd:
+        name: postgresql
+        state: started
+        enabled: yes
+
+    - name: Create SonarQube database
+      postgresql_db:
+        name: "{{ sonarqube_db_name }}"
+        state: present
+      become_user: postgres
+
+    - name: Create SonarQube database user
+      postgresql_user:
+        name: "{{ sonarqube_db_user }}"
+        password: "{{ sonarqube_db_password }}"
+        db: "{{ sonarqube_db_name }}"
+        priv: ALL
+        state: present
+      become_user: postgres
+
+  when: not sonarqube_db_embedded
+
+- name: Create SonarQube systemd service
+  template:
+    src: sonarqube.service.j2
+    dest: /etc/systemd/system/sonarqube.service
+    mode: '0644'
+  notify: restart sonarqube
+
+- name: Enable and start SonarQube service
+  systemd:
+    name: sonarqube
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Wait for SonarQube to be ready
+  uri:
+    url: "http://{{ sonarqube_web_host }}:{{ sonarqube_web_port }}"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 10
+  ignore_errors: yes
+
+- name: Display SonarQube access information
+  debug:
+    msg:
+      - "SonarQube is installed and running"
+      - "Access URL: http://{{ ansible_default_ipv4.address }}:{{ sonarqube_web_port }}"
+      - "Default credentials: admin/admin"
+      - "Please change the default password on first login"

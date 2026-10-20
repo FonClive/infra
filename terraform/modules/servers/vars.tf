@@ -9,7 +9,7 @@ variable "environments" {
 }
 
 variable "key_name" {
-  description = "Name of the SSH key pair to use for EC2 instances"
+  description = "Name prefix for IAM resources (previously used for SSH key name)"
   type        = string
 }
 
@@ -17,12 +17,6 @@ variable "security_group_ids" {
   description = "List of SGs to attach to EC2 instances"
   type        = list(string)
   default     = []
-}
-
-variable "public_key_path" {
-  description = "Path to an existing SSH public key file"
-  type        = string
-  default     = ""
 }
 
 variable "ec2_parameters" {
