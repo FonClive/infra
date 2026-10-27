@@ -272,7 +272,7 @@ jobs:
       
       - name: Upload Ansible logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ansible-logs
           path: |
