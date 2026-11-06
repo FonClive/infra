@@ -95,15 +95,15 @@
       debug:
         msg: "Nginx is {{ nginx_status.status.ActiveState }}"
 
-- name: Deploy Portfolio Application
-  hosts: role_frontend
-  become: true
-  tags:
-    - portfolio
-    - application
+# - name: Deploy Portfolio Application
+#   hosts: role_frontend
+#   become: true
+#   tags:
+#     - portfolio
+#     - application
   
-  roles:
-    - portfolio-app
+#   roles:
+#     - portfolio-app
 
 #################################
 # Monitoring (Prometheus)
