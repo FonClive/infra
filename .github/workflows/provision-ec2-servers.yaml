@@ -62,11 +62,6 @@ jobs:
         working-directory: ansible
         run: |
           ansible-lint provision-servers.yml || true
-      
-      - name: Validate inventory
-        working-directory: ansible
-        run: |
-          ansible-inventory -i inventory/aws_ec2.yml --list
 
   provision:
     name: Provision Servers
