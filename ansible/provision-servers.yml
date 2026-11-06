@@ -44,18 +44,6 @@
       hostname:
         name: "{{ inventory_hostname_short }}"
 
-#################################
-# SSH Access Management
-#################################
-- name: Configure SSH Access
-  hosts: all
-  become: true
-  tags:
-    - ssh
-    - security
-  
-  roles:
-    - ssh_access
 
 #################################
 # Puppet Configuration
