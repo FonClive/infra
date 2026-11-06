@@ -3,3 +3,8 @@ install-opentofu.sh
 .terraform*
 node_modules
 coverage
+
+# Ansible cache
+ansible/.ansible_cache/
+.ansible_cache/
+*.retry
