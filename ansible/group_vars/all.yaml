@@ -14,3 +14,7 @@ ansible_become_method: sudo
 
 # Disable SSH host key checking (not used with SSM but good practice)
 ansible_host_key_checking: false
+# Admin users (from users.yaml)
+admins:
+  - name: Clive
+    key: "private key"
