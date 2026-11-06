@@ -89,11 +89,20 @@ jobs:
       - name: Install Ansible and SSM plugin
         run: |
           pip install ansible boto3 botocore
-          # Install AWS Ansible collection (includes aws_ssm connection plugin)
-          ansible-galaxy collection install amazon.aws community.aws
+          echo "Installing AWS Ansible collections..."
+          ansible-galaxy collection install amazon.aws community.aws --force
+          echo ""
+          echo "Verifying collections are installed..."
+          ansible-galaxy collection list
+          echo ""
+          echo "Checking aws_ssm connection plugin..."
+          ansible-doc -t connection aws_ssm | head -20
           # Install the SSM plugin for AWS CLI
           curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
           sudo dpkg -i session-manager-plugin.deb
+          echo ""
+          echo "Verifying SSM plugin..."
+          session-manager-plugin --version
       
       - name: Discover EC2 instances
         id: ec2-discovery
@@ -166,10 +175,17 @@ jobs:
         working-directory: ansible
         run: |
           echo "Testing Ansible connectivity via SSM..."
-          echo "Verifying connection settings..."
-          ansible all -i inventory/aws_ec2.yml -m debug -a "msg='Connection: {{ ansible_connection }}'" -vvv || true
           echo ""
-          echo "Testing ping module..."
+          echo "=== Checking if aws_ssm connection plugin is available ==="
+          ansible-doc -t connection aws_ssm || echo "WARNING: aws_ssm plugin not found!"
+          echo ""
+          echo "=== Checking installed collections ==="
+          ansible-galaxy collection list | grep -E '(amazon|community)' || echo "WARNING: AWS collections not installed!"
+          echo ""
+          echo "=== Verifying connection settings from inventory ==="
+          ansible all -i inventory/aws_ec2.yml -m debug -a "msg='Connection: {{ ansible_connection }}'" --limit i-086576255890c280a || true
+          echo ""
+          echo "=== Testing ping module ==="
           ansible all -i inventory/aws_ec2.yml -m ping -vvv || true
       
       - name: Run Ansible provisioning
