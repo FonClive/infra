@@ -1,7 +1,7 @@
 # Global Ansible Configuration for All Hosts
 # Using SSM Session Manager instead of SSH
 
-# SSM connection settings
+# SSM connection settings (minimal required)
 ansible_connection: community.aws.aws_ssm
 ansible_aws_ssm_region: us-east-1
 
@@ -12,8 +12,9 @@ ansible_python_interpreter: /usr/bin/python3
 ansible_become: true
 ansible_become_method: sudo
 
-# Disable SSH host key checking (not used with SSM but good practice)
+# Disable SSH host key checking
 ansible_host_key_checking: false
+
 # Admin users (from users.yaml)
 admins:
   - name: Clive
