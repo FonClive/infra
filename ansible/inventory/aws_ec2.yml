@@ -16,9 +16,7 @@ compose:
   ansible_host: instance_id
   # Keep public IP for reference (useful for verification)
   public_ip: public_ip_address
-  # SSM connection configuration
-  ansible_connection: aws_ssm
-  ansible_aws_ssm_region: us-east-1
+  # NOTE: ansible_connection and ansible_aws_ssm_region are set in group_vars/all.yaml
   
 filters:
   # Find all instances with specific roles
