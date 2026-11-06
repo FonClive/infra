@@ -23,8 +23,8 @@ filters:
   # Find all instances with specific roles
   tag:Role:
     - frontend
-    - sonarqube
-    - monitor
+  tag:Environment:
+    - dev
   instance-state-name: running  # only running instances
 
 keyed_groups:

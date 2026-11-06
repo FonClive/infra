@@ -4,15 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       target_group:
-        description: 'Target host group (all, role_frontend, role_sonarqube, role_monitor)'
+        description: 'Target host group (all, role_frontend, env_dev)'
         required: false
         default: 'all'
         type: choice
         options:
           - all
           - role_frontend
-          - role_sonarqube
-          - role_monitor
+          - env_dev
       tags:
         description: 'Ansible tags to run (comma-separated: base,ssh,web,sonarqube,monitoring,puppet)'
         required: false
