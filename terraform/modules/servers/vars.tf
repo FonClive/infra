@@ -28,3 +28,9 @@ variable "ec2_parameters" {
     tags           = optional(map(string), {})
   })
 }
+
+variable "ssm_s3_bucket_name" {
+  description = "S3 bucket name for SSM session logs (optional)"
+  type        = string
+  default     = null
+}

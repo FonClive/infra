@@ -123,7 +123,13 @@ jobs:
             --output table
       
       - name: Wait for SSM agents to be ready
+        id: get-account-id
         run: |
+          # Get AWS Account ID for S3 bucket name
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          echo "account_id=$ACCOUNT_ID" >> $GITHUB_OUTPUT
+          echo "AWS Account ID: $ACCOUNT_ID"
+          
           echo "Waiting for SSM agents to be online..."
           
           INSTANCE_IDS=$(aws ec2 describe-instances \
@@ -190,8 +196,11 @@ jobs:
       
       - name: Run Ansible provisioning
         working-directory: ansible
+        env:
+          AWS_ACCOUNT_ID: ${{ steps.get-account-id.outputs.account_id }}
         run: |
           echo "Starting Ansible provisioning..."
+          echo "AWS Account ID: $AWS_ACCOUNT_ID"
           
           ANSIBLE_CMD="ansible-playbook -i inventory/aws_ec2.yml provision-servers.yml"
           

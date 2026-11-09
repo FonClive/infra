@@ -10,9 +10,16 @@ dependency "vpc" {
   config_path = "../vpc"
 }
 
+dependency "s3_ssm_logs" {
+  config_path = "../s3-ssm-logs"
+}
+
 inputs = {
   environments = "dev"
   key_name     = "dev-key"  # Used as prefix for IAM resources
+  
+  # S3 bucket for SSM session logs
+  ssm_s3_bucket_name = dependency.s3_ssm_logs.outputs.bucket_id
   
   ec2_parameters = {
     instance_count = 3

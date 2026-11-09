@@ -26,6 +26,36 @@ resource "aws_iam_role_policy_attachment" "ssm_managed_instance_core" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
+# IAM policy for S3 access (SSM session logs)
+resource "aws_iam_role_policy" "s3_ssm_logs" {
+  count = var.ssm_s3_bucket_name != null ? 1 : 0
+  name  = "${var.key_name}-s3-ssm-logs"
+  role  = aws_iam_role.ec2_ssm_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject"
+        ]
+        Resource = "arn:aws:s3:::${var.ssm_s3_bucket_name}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ]
+        Resource = "arn:aws:s3:::${var.ssm_s3_bucket_name}"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "${var.key_name}-instance-profile"
   role = aws_iam_role.ec2_ssm_role.name

@@ -1,9 +1,11 @@
 # Global Ansible Configuration for All Hosts
 # Using SSM Session Manager instead of SSH
 
-# SSM connection settings (minimal required)
-ansible_connection: community.aws.aws_ssm
+# SSM connection settings
+ansible_connection: amazon.aws.aws_ssm
 ansible_aws_ssm_region: us-east-1
+ansible_aws_ssm_bucket_name: "dev-ssm-session-logs-{{ lookup('env', 'AWS_ACCOUNT_ID') }}"  # S3 bucket for session logs
+ansible_aws_ssm_plugin: /usr/local/bin/session-manager-plugin
 
 # Python interpreter
 ansible_python_interpreter: /usr/bin/python3

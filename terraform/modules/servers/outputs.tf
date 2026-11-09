@@ -28,6 +28,11 @@ output "iam_instance_profile_arn" {
   value       = aws_iam_instance_profile.ec2_profile.arn
 }
 
+output "iam_role_arn" {
+  description = "IAM role ARN for EC2 instances (for S3 bucket policies)"
+  value       = aws_iam_role.ec2_ssm_role.arn
+}
+
 
 
 
