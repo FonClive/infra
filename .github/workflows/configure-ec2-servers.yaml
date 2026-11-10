@@ -59,7 +59,7 @@ jobs:
       - name: Validate Ansible syntax
         working-directory: ansible
         run: |
-          ansible-playbook provision-servers.yml --syntax-check
+          ansible-playbook configure-servers.yml --syntax-check
       
       - name: Lint Ansible playbook
         working-directory: ansible
