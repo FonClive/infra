@@ -6,8 +6,11 @@ global:
   evaluation_interval: {{ prometheus_evaluation_interval }}
   
   external_labels:
-    environment: '{{ ansible_env|default("dev") }}'
     cluster: 'ec2-infrastructure'
+    
+rule_files:
+  - "/etc/prometheus/rules/monitoring-rules.yml"
+  - "/etc/prometheus/rules/alert-rules.yml"
 
 # Scrape Prometheus itself
 scrape_configs:

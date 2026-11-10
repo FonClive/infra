@@ -80,7 +80,7 @@
 
 - name: Deploy Prometheus monitoring and alert rules
   ansible.builtin.copy:
-    src: "/infra/monitoring/dev/{{ item }}"
+    src: "rules/dev/{{ item }}"
     dest: "/etc/prometheus/rules/{{ item }}"
     owner: prometheus
     group: prometheus
@@ -89,7 +89,7 @@
     - monitoring-rules.yml
     - alert-rules.yml
   notify: Restart Prometheus
-
+  
 - name: Clean up downloaded files
   file:
     path: "{{ item }}"
