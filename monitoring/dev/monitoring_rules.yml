@@ -1,0 +1,43 @@
+
+groups:
+  # CPU monitoring
+  - name: cpu-monitoring
+    interval: 30s
+    rules:
+      - record: instance:cpu_utilization:percent
+        expr: |
+          100 * (1 - avg by(instance) (
+            rate(node_cpu_seconds_total{mode="idle"}[5m])
+          ))
+
+  # Memory monitoring
+  - name: memory-monitoring
+    interval: 30s
+    rules:
+      - record: instance:memory_utilization:percent
+        expr: |
+          100 * (
+            1 - (
+              node_memory_MemAvailable_bytes /
+              node_memory_MemTotal_bytes
+            )
+          )
+
+  # Disk monitoring
+  - name: disk-monitoring
+    interval: 30s
+    rules:
+      - record: instance:disk_utilization:percent
+        expr: |
+          100 * (
+            1 - (
+              node_filesystem_avail_bytes{
+                fstype!~"tmpfs|overlay|squashfs",
+                mountpoint!~"/run.*|/var/lib/docker.*"
+              } /
+              node_filesystem_size_bytes{
+                fstype!~"tmpfs|overlay|squashfs",
+                mountpoint!~"/run.*|/var/lib/docker.*"
+              }
+            )
+          )

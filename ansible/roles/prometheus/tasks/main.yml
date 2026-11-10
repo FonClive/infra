@@ -69,6 +69,27 @@
     - console_libraries
   when: not prometheus_binary.stat.exists
 
+- name: Create Prometheus rules directory
+  ansible.builtin.file:
+    path: /etc/prometheus/rules
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+
+
+- name: Deploy Prometheus monitoring and alert rules
+  ansible.builtin.copy:
+    src: "/monitoring/dev/{{ item }}"
+    dest: "/etc/prometheus/rules/{{ item }}"
+    owner: prometheus
+    group: prometheus
+    mode: '0644'
+  loop:
+    - monitoring-rules.yml
+    - alert-rules.yml
+  notify: Restart Prometheus
+
 - name: Clean up downloaded files
   file:
     path: "{{ item }}"

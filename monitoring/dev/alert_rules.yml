@@ -1,0 +1,124 @@
+
+groups:
+  # CPU alerts
+  - name: cpu-alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: instance:cpu_utilization:percent > 75
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value | printf \"%.2f\" }}%."
+
+      - alert: CriticalCPUUsage
+        expr: instance:cpu_utilization:percent > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value | printf \"%.2f\" }}%."
+
+  # Memory alerts
+  - name: memory-alerts
+    rules:
+      - alert: HighMemoryUsage
+        expr: instance:memory_utilization:percent > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory utilization is {{ $value | printf \"%.2f\" }}%."
+
+      - alert: CriticalMemoryUsage
+        expr: instance:memory_utilization:percent > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical memory usage on {{ $labels.instance }}"
+          description: "Memory utilization is {{ $value | printf \"%.2f\" }}%."
+
+  # Disk alerts
+  - name: disk-alerts
+    rules:
+      - alert: HighDiskUsage
+        expr: instance:disk_utilization:percent > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk usage on {{ $labels.instance }} ({{ $labels.mountpoint }})"
+          description: "Filesystem utilization is {{ $value | printf \"%.2f\" }}%."
+
+      - alert: CriticalDiskUsage
+        expr: instance:disk_utilization:percent > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical disk usage on {{ $labels.instance }} ({{ $labels.mountpoint }})"
+          description: "Filesystem utilization is {{ $value | printf \"%.2f\" }}%."
+
+      - alert: FilesystemReadOnly
+        expr: |
+          node_filesystem_readonly{
+            fstype!~"tmpfs|squashfs"
+          } == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Filesystem read-only on {{ $labels.instance }}"
+          description: "Filesystem {{ $labels.mountpoint }} is mounted read-only."
+
+  # Availability alerts
+  - name: availability-alerts
+    rules:
+      - alert: NodeExporterDown
+        expr: up{job="node-exporter"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node Exporter unavailable on {{ $labels.instance }}"
+          description: "Prometheus cannot scrape this Node Exporter."
+
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus target down: {{ $labels.instance }}"
+          description: "Target {{ $labels.instance }} in job {{ $labels.job }} is unavailable."
+
+  # Network alerts
+  - name: network-alerts
+    rules:
+      - alert: HighNetworkReceiveErrors
+        expr: |
+          rate(node_network_receive_errs_total{
+            device!="lo"
+          }[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Network receive errors on {{ $labels.instance }}"
+          description: "Interface {{ $labels.device }} is experiencing receive errors."
+
+      - alert: HighNetworkTransmitErrors
+        expr: |
+          rate(node_network_transmit_errs_total{
+            device!="lo"
+          }[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Network transmit errors on {{ $labels.instance }}"
+          description: "Interface {{ $labels.device }} is experiencing transmit errors."
