@@ -6,7 +6,7 @@ global:
   evaluation_interval: {{ prometheus_evaluation_interval }}
   
   external_labels:
-    environment: '{{ ansible_env|default("unknown") }}'
+    environment: '{{ ansible_env|default("dev") }}'
     cluster: 'ec2-infrastructure'
 
 # Scrape Prometheus itself
