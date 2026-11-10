@@ -1,0 +1,16 @@
+---
+##############################################
+# Prometheus Server Default Variables
+##############################################
+
+prometheus_version: "2.48.1"
+prometheus_port: 9090
+prometheus_download_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+
+# Scrape interval
+prometheus_scrape_interval: "15s"
+prometheus_evaluation_interval: "15s"
+
+# Retention
+prometheus_retention_time: "15d"
+prometheus_retention_size: "10GB"

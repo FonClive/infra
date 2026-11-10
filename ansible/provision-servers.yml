@@ -94,17 +94,48 @@
 #     - portfolio-app
 
 #################################
-# Monitoring (Prometheus)
+# Node Exporter (ALL Servers)
 #################################
-- name: Install Prometheus Monitoring
+- name: Install Node Exporter on All Servers
+  hosts: all
+  become: true
+  gather_facts: false
+  tags:
+    - monitoring
+    - node-exporter
+    - exporters
+    - always  # Install on all servers
+  
+  roles:
+    - node-exporter
+  
+  post_tasks:
+    - name: Verify Node Exporter is running
+      systemd:
+        name: node_exporter
+        state: started
+      register: node_exporter_status
+      ignore_errors: yes
+    
+    - name: Display Node Exporter status
+      debug:
+        msg: "Node Exporter is {{ 'running' if node_exporter_status.status.ActiveState == 'active' else 'not running' }}"
+      when: node_exporter_status is defined
+
+#################################
+# Prometheus Server (Monitor Host)
+#################################
+- name: Install Prometheus Server
   hosts: role_monitor
   become: true
+  gather_facts: false
   tags:
     - monitoring
     - prometheus
+    - server
   
   roles:
-    - prometheuse
+    - prometheus
   
   post_tasks:
     - name: Verify Prometheus is accessible

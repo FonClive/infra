@@ -1,21 +1,21 @@
 output "ec2_public_ips" {
   description = "Public IP addresses of EC2 instances"
-  value       = [for instance in aws_instance.this : instance.public_ip]
+  value       = { for k, instance in aws_instance.this : k => instance.public_ip }
 }
 
 output "ec2_private_ips" {
   description = "Private IP addresses of EC2 instances"
-  value       = [for instance in aws_instance.this : instance.private_ip]
+  value       = { for k, instance in aws_instance.this : k => instance.private_ip }
 }
 
 output "ec2_instance_ids" {
   description = "Instance IDs for SSM connectivity"
-  value       = [for instance in aws_instance.this : instance.id]
+  value       = { for k, instance in aws_instance.this : k => instance.id }
 }
 
 output "ssm_connection_test_command" {
   description = "Command to test SSM connectivity"
-  value       = "aws ssm describe-instance-information --filters 'Key=InstanceIds,Values=${join(",", [for instance in aws_instance.this : instance.id])}' --query 'InstanceInformationList[*].[InstanceId,PingStatus]' --output table"
+  value       = "aws ssm describe-instance-information --filters 'Key=InstanceIds,Values=${join(",", values({ for k, instance in aws_instance.this : k => instance.id }))}' --query 'InstanceInformationList[*].[InstanceId,PingStatus]' --output table"
 }
 
 output "iam_role_name" {

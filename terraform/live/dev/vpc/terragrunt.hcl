@@ -87,15 +87,15 @@ inputs = {
   # -----------------------
   # NAT Gateway
   # -----------------------
-  nat_gateway_parameters = {
-    main-nat = {
-      vpc_name    = "main-vpc"
-      subnet_name = "public-subnet-1"
-      tags = {
-        Name = "main-nat"
-      }
-    }
-  }
+  # nat_gateway_parameters = {
+  #   main-nat = {
+  #     vpc_name    = "main-vpc"
+  #     subnet_name = "public-subnet-1"
+  #     tags = {
+  #       Name = "main-nat"
+  #     }
+  #   }
+  # }
 
   # -----------------------
   # Route Tables + Routes
@@ -115,19 +115,19 @@ inputs = {
       }
     }
 
-    private-rt = {
-      subnet_names = ["private-subnet-1", "private-subnet-2"]
-      routes = [
-        {
-          destination_cidr_block = "0.0.0.0/0"
-          use_nat_gw             = true
-          gateway_id             = "main-nat"
-        }
-      ]
-      tags = {
-        tier = "private"
-      }
-    }
+    # private-rt = {
+    #   subnet_names = ["private-subnet-1", "private-subnet-2"]
+    #   routes = [
+    #     {
+    #       destination_cidr_block = "0.0.0.0/0"
+    #       use_nat_gw             = true
+    #       gateway_id             = "main-nat"
+    #     }
+    #   ]
+    #   tags = {
+    #     tier = "private"
+    #   }
+    # }
   }
 
   # Security Groups
@@ -177,6 +177,29 @@ sg_parameters = {
         }
       ]
     }
+
+    Prometheus = {
+      vpc_name = "main-vpc"
+      description = "Allow prometheuse scrape and ui"
+      ingress = [
+        {
+          description = "Scrape"
+          from_port   = 9100
+          to_port     = 9100
+          protocol    = "tcp"
+          cidr_blocks = ["0.0.0.0/0"]
+        },
+        {
+          description = "prometheuse-ui"
+          from_port   = 9090
+          to_port     = 9090
+          protocol    = "tcp"
+          cidr_blocks = ["0.0.0.0/0"]
+        }
+      ]
+    }
+
+
   }
 }
 

@@ -65,13 +65,22 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 # EC2 Instances
 #################################
 resource "aws_instance" "this" {
-  count = var.ec2_parameters.instance_count
+  for_each = { for idx, config in flatten([
+    for role, params in var.ec2_parameters : [
+      for i in range(params.instance_count) : {
+        key           = "${role}-${i}"
+        role          = role
+        ami_id        = params.ami_id
+        instance_type = params.instance_type
+        subnet_id     = element(params.subnet_ids, i % length(params.subnet_ids))
+        tags          = params.tags
+      }
+    ]
+  ]) : config.key => config }
 
-  ami           = var.ec2_parameters.ami_id
-  instance_type = var.ec2_parameters.instance_type
-
-  # distribute evenly across subnets
-  subnet_id = element(var.ec2_parameters.subnet_ids, count.index % length(var.ec2_parameters.subnet_ids))
+  ami           = each.value.ami_id
+  instance_type = each.value.instance_type
+  subnet_id     = each.value.subnet_id
   
   # Attach IAM instance profile for SSM access
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
@@ -139,10 +148,10 @@ resource "aws_instance" "this" {
   
   tags = merge(
     {
-      Name        = "instance-${count.index}"
+      Name        = each.key
       Environment = var.environments
     },
-    lookup(var.ec2_parameters, "tags", {})
+    each.value.tags
   )
 }
 

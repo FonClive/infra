@@ -22,19 +22,35 @@ inputs = {
   ssm_s3_bucket_name = dependency.s3_ssm_logs.outputs.bucket_id
   
   ec2_parameters = {
-    instance_count = 3
-    ami_id         = "ami-0360c520857e3138f"
-    instance_type  = "t2.nano"
-    subnet_ids     = dependency.vpc.outputs.public_subnet_ids
+    frontend = {
+      instance_count = 3
+      ami_id         = "ami-0360c520857e3138f"
+      instance_type  = "t2.nano"
+      subnet_ids     = dependency.vpc.outputs.public_subnet_ids
+      
+      tags = {
+        Role         = "frontend"
+        Environments = "dev"
+      }
+    }
     
-    tags = {
-      Role         = "frontend"
-      Environments = "dev"
+    monitor = {
+      instance_count = 1
+      ami_id         = "ami-0360c520857e3138f"
+      instance_type  = "t2.nano" 
+      subnet_ids     = dependency.vpc.outputs.public_subnet_ids
+      
+      tags = {
+        Role         = "monitor"   
+        Environment  = "dev"
+        Purpose      = "Prometheus"
+      }
     }
   }
   
   security_group_ids = [
     dependency.vpc.outputs.sg_ids["ssh"],
-    dependency.vpc.outputs.sg_ids["web"]
+    dependency.vpc.outputs.sg_ids["web"],
+    dependency.vpc.outputs.sg_ids["Prometheus"]
   ]
 }
