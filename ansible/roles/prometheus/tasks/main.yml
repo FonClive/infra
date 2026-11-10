@@ -80,7 +80,7 @@
 
 - name: Deploy Prometheus monitoring and alert rules
   ansible.builtin.copy:
-    src: "rules/dev/{{ item }}"
+    src: "rules/{{ item }}"
     dest: "/etc/prometheus/rules/{{ item }}"
     owner: prometheus
     group: prometheus
