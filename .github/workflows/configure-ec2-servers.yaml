@@ -29,8 +29,8 @@ on:
       - main
     paths:
       - 'ansible/roles/**'
-      - 'ansible/provision-servers.yml'
-      - '.github/workflows/provision-ec2-servers.yaml'
+      - 'ansible/configure-servers.yml'
+      - '.github/workflows/configure-ec2-servers.yaml'
 
 env:
   AWS_REGION: us-east-1
@@ -64,10 +64,10 @@ jobs:
       - name: Lint Ansible playbook
         working-directory: ansible
         run: |
-          ansible-lint provision-servers.yml || true
+          ansible-lint configure-servers.yml || true
       
-  provision:
-    name: Provision Servers
+  configure:
+    name: Configure Servers
     runs-on: ubuntu-latest
     needs: validate
     
@@ -139,7 +139,7 @@ jobs:
             --output text)
           
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "⚠️  No instances found. Skipping provisioning."
+            echo "⚠️  No instances found. Skipping configuring."
             exit 0
           fi
           
@@ -170,7 +170,7 @@ jobs:
             fi
           done
           
-          echo "✓ All instances are ready for provisioning"
+          echo "✓ All instances are ready for configuring"
       
       - name: Test Ansible inventory
         working-directory: ansible
@@ -195,15 +195,15 @@ jobs:
           echo "=== Testing ping module ==="
           ansible all -i inventory/aws_ec2.yml -m ping -vvv || true
       
-      - name: Run Ansible provisioning
+      - name: Run Ansible configuring
         working-directory: ansible
         env:
           AWS_ACCOUNT_ID: ${{ steps.get-account-id.outputs.account_id }}
         run: |
-          echo "Starting Ansible provisioning..."
+          echo "Starting Ansible configuring..."
           echo "AWS Account ID: $AWS_ACCOUNT_ID"
           
-          ANSIBLE_CMD="ansible-playbook -i inventory/aws_ec2.yml provision-servers.yml"
+          ANSIBLE_CMD="ansible-playbook -i inventory/aws_ec2.yml configure-servers.yml"
           
           # Add limit if specified
           if [ "${{ github.event.inputs.target_group }}" != "all" ] && [ -n "${{ github.event.inputs.target_group }}" ]; then
@@ -248,7 +248,7 @@ jobs:
         if: github.event.inputs.dry_run != 'true'
         id: service-urls
         run: |
-          echo "### 🚀 Provisioning Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 configuring Complete!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Frontend servers
@@ -293,7 +293,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
           
-          echo "**Provisioning Details:**" >> $GITHUB_STEP_SUMMARY
+          echo "**configuring Details:**" >> $GITHUB_STEP_SUMMARY
           echo "- Target Group: ${{ github.event.inputs.target_group || 'all' }}" >> $GITHUB_STEP_SUMMARY
           echo "- Tags: ${{ github.event.inputs.tags || 'all' }}" >> $GITHUB_STEP_SUMMARY
           echo "- Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
@@ -310,15 +310,15 @@ jobs:
   notify:
     name: Notify Completion
     runs-on: ubuntu-latest
-    needs: provision
+    needs: configure
     if: always()
     
     steps:
-      - name: Provisioning Status
+      - name: configuring Status
         run: |
-          if [ "${{ needs.provision.result }}" == "success" ]; then
-            echo "✅ Server provisioning completed successfully"
+          if [ "${{ needs.configure.result }}" == "success" ]; then
+            echo "✅ Server configuring completed successfully"
           else
-            echo "❌ Server provisioning failed"
+            echo "❌ Server configuring failed"
             exit 1
           fi
