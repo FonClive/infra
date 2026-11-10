@@ -1,4 +1,4 @@
-name: Provision EC2 Servers with Ansible
+name: Configure EC2 Servers with Ansible
 
 on:
   workflow_dispatch:
@@ -11,6 +11,7 @@ on:
         options:
           - all
           - role_frontend
+          - role_monitor
           - env_dev
       tags:
         description: 'Ansible tags to run (comma-separated: base,ssh,web,sonarqube,monitoring,puppet)'
@@ -64,7 +65,7 @@ jobs:
         working-directory: ansible
         run: |
           ansible-lint provision-servers.yml || true
-
+      
   provision:
     name: Provision Servers
     runs-on: ubuntu-latest
