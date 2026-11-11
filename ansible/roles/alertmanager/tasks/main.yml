@@ -1,0 +1,104 @@
+---
+##############################################
+# Alert-manager Server Installation
+##############################################
+###########################################
+
+- name: Create alertmanager user
+  user:
+    name: alertmanager
+    system: yes
+    shell: /bin/false
+    create_home: no
+
+- name: Create alertmanager directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: alertmanager
+    group: alertmanager
+    mode: '0755'
+  loop:
+    - /etc/alertmanager
+    - /var/lib/alertmanager
+
+- name: Check if alertmanager is already installed
+  stat:
+    path: /usr/local/bin/alertmanager
+  register: alertmanager_binary
+
+- name: Download Prometheus
+  get_url:
+    url: "{{ alertmanager_download_url }}"
+    dest: "/tmp/alertmanager.tar.gz"
+    mode: '0644'
+  when: not alertmanager_binary.stat.exists
+
+- name: Extract alertmanager
+  unarchive:
+    src: "/tmp/alertmanager.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+  when: not alertmanager_binary.stat.exists
+
+- name: Copy alertmanager binaries
+  copy:
+    src: "/tmp/alertmanager-{{ alertmanager_version }}.linux-amd64/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: alertmanager
+    group: alertmanager
+    mode: '0755'
+    remote_src: yes
+  loop:
+    - alertmanager
+    - amtool
+  when: not alertmanager_binary.stat.exists
+
+  
+- name: Clean up downloaded files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/tmp/alertmanager.tar.gz"
+    - "/tmp/prometheus-{{ prometheus_version }}.linux-amd64"
+
+- name: Create Prometheus configuration file
+  template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    owner: prometheus
+    group: prometheus
+    mode: '0644'
+  notify: restart prometheus
+
+- name: Create systemd service file
+  template:
+    src: alertmanager.service.j2
+    dest: /etc/systemd/system/alertmanager.service
+    mode: '0644'
+  notify: restart alertmanager
+
+- name: Enable and start alertmanager service
+  systemd:
+    name: alertmanager
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Wait for alertmanager to be ready
+  uri:
+    url: "http://localhost:{{ alertmanager_port }}/-/healthy"
+    status_code: 200
+  register: alertmanager_health
+  retries: 10
+  delay: 3
+  ignore_errors: yes
+
+- name: Display Alert Manager access information
+  debug:
+    msg:
+      - "alertmanager is installed and running"
+      - "Access URL: http://{{ ansible_default_ipv4.address | default('localhost') }}:{{ alertmanager_port }}"
+      
+      
