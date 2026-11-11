@@ -27,7 +27,7 @@
     path: /usr/local/bin/alertmanager
   register: alertmanager_binary
 
-- name: Download Prometheus
+- name: Download alertmanager
   get_url:
     url: "{{ alertmanager_download_url }}"
     dest: "/tmp/alertmanager.tar.gz"
@@ -61,16 +61,16 @@
     state: absent
   loop:
     - "/tmp/alertmanager.tar.gz"
-    - "/tmp/prometheus-{{ prometheus_version }}.linux-amd64"
+    - "/tmp/alertmanager-{{ alertmanager_version }}.linux-amd64"
 
-- name: Create Prometheus configuration file
-  template:
-    src: prometheus.yml.j2
-    dest: /etc/prometheus/prometheus.yml
-    owner: prometheus
-    group: prometheus
-    mode: '0644'
-  notify: restart prometheus
+# - name: Create alertmanager configuration file
+#   template:
+#     src: alertmanager.yml.j2
+#     dest: /etc/alertmanager/alertmanager.yml
+#     owner: alertmanager
+#     group: alertmanager
+#     mode: '0644'
+#   notify: restart alertmanager
 
 - name: Create systemd service file
   template:
@@ -100,5 +100,4 @@
     msg:
       - "alertmanager is installed and running"
       - "Access URL: http://{{ ansible_default_ipv4.address | default('localhost') }}:{{ alertmanager_port }}"
-      
-      
+          

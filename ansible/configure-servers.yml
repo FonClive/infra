@@ -150,9 +150,9 @@
         msg: "Prometheus health check: {{ 'OK' if prometheus_health.status == 200 else 'FAILED' }}"
 
 #################################
-# Prometheus Server (Monitor Host)
+# Alert manager Server (Monitor Host)
 #################################
-- name: Install Prometheus Server
+- name: Install alertmanager
   hosts: role_monitor
   become: true
   gather_facts: false
@@ -165,16 +165,16 @@
     - alertmanager
   
   post_tasks:
-    - name: Verify Prometheus is accessible
+    - name: Verify alertmanager is accessible
       uri:
         url: "http://localhost:9090/-/healthy"
         status_code: 200
-      register: prometheus_health
+      register: alertmanager_health
       ignore_errors: yes
     
-    - name: Display Prometheus health status
+    - name: Display alertmanager health status
       debug:
-        msg: "Prometheus health check: {{ 'OK' if prometheus_health.status == 200 else 'FAILED' }}"
+        msg: "alertmanager health check: {{ 'OK' if alertmanager_health.status == 200 else 'FAILED' }}"
 
 
 #################################
