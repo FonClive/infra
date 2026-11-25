@@ -177,6 +177,17 @@
         msg: "alertmanager health check: {{ 'OK' if alertmanager_health.status == 200 else 'FAILED' }}"
 
 
+- name: Install and configure Grafana
+  hosts: role_monitor
+  become: true
+  gather_facts: false
+  tags:
+    - monitoring
+    - alertmanager
+    - server
+
+  roles:
+    - grafana
 #################################
 # Code Quality (SonarQube)
 #################################
